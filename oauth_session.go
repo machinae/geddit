@@ -22,6 +22,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var AuthDurationPermament oauth2.AuthCodeOption = oauth2.SetAuthURLParam("duration", "permanent")
+
 type transport struct {
 	http.RoundTripper
 	useragent string
@@ -110,8 +112,20 @@ func (o *OAuthSession) LoginAuth(username, password string) error {
 
 // AuthCodeURL creates and returns an auth URL which contains an auth code.
 func (o *OAuthSession) AuthCodeURL(state string, scopes []string) string {
+	return o.AuthCodeURLOptions(state, scopes, oauth2.AccessTypeOnline)
+}
+
+// AuthCodeURL creates and returns an auth URL which contains an auth code,
+// with additional oauth options set.
+func (o *OAuthSession) AuthCodeURLOptions(state string, scopes []string, opts ...oauth2.AuthCodeOption) string {
 	o.OAuthConfig.Scopes = scopes
-	return o.OAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOnline)
+	return o.OAuthConfig.AuthCodeURL(state, opts...)
+}
+
+// AuthCodeURLPermanent returns an auth URL that prompts for permanent OAuth
+// access
+func (o *OAuthSession) AuthCodeURLPermanent(state string, scopes []string) string {
+	return o.AuthCodeURLOptions(state, scopes, oauth2.AccessTypeOffline, AuthDurationPermament)
 }
 
 // CodeAuth creates and sets a token using an authentication code returned from AuthCodeURL.
