@@ -139,6 +139,16 @@ func (o *OAuthSession) CodeAuth(code string) error {
 	return nil
 }
 
+// TokenAuth creates the required HTTP client from a prviously acquired OAuth token
+func (o *OAuthSession) TokenAuth(token *oauth2.Token) error {
+	if token == nil {
+		return errors.New("Invalid OAuth token")
+	}
+	o.Token = token
+	o.Client = o.OAuthConfig.Client(o.ctx, token)
+	return nil
+}
+
 // NeedsCaptcha check whether CAPTCHAs are needed for the Submit function.
 func (o *OAuthSession) NeedsCaptcha() (bool, error) {
 	var b bool
