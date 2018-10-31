@@ -40,7 +40,8 @@ type OAuthSession struct {
 	ClientID     string
 	ClientSecret string
 	OAuthConfig  *oauth2.Config
-	//TokenExpiry  time.Time
+	// The refresh token returned from the OAuth API
+	Token     *oauth2.Token
 	UserAgent string
 	ctx       context.Context
 	throttle  *rate.RateLimiter
@@ -102,6 +103,7 @@ func (o *OAuthSession) LoginAuth(username, password string) error {
 		}
 		return errors.New(msg)
 	}
+	o.Token = t
 	o.Client = o.OAuthConfig.Client(o.ctx, t)
 	return nil
 }
@@ -118,6 +120,7 @@ func (o *OAuthSession) CodeAuth(code string) error {
 	if err != nil {
 		return err
 	}
+	o.Token = t
 	o.Client = o.OAuthConfig.Client(o.ctx, t)
 	return nil
 }
